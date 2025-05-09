@@ -1,5 +1,7 @@
 package org.volunteer.client.gui;
 
+import org.volunteer.client.session.SessionManager;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -7,6 +9,7 @@ public class NameDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JTextField textField1;
 
     public NameDialog() {
         setContentPane(contentPane);
@@ -42,19 +45,12 @@ public class NameDialog extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        SessionManager.setUserName(textField1.getText());
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
         dispose();
-    }
-
-    public static void main(String[] args) {
-        NameDialog dialog = new NameDialog();
-        dialog.pack();
-        dialog.setVisible(true);
         System.exit(0);
     }
 }

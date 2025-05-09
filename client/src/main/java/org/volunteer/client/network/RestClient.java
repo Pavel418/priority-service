@@ -3,6 +3,7 @@ package org.volunteer.client.network;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.volunteer.client.exception.ConfigurationException;
 import org.volunteer.client.model.ClientInitResponse;
 import org.volunteer.client.network.config.Environment;
 
@@ -46,48 +47,32 @@ public final class RestClient {
         this.client = client;
     }
 
-    /**
-     * Initializes client session with the backend service.
-     *
-     * @return CompletableFuture containing initialized client identity and services
-     */
     public CompletableFuture<ClientInitResponse> initializeClient() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Environment.getRestBaseUrl() + INIT_ENDPOINT))
                 .timeout(Environment.getReadTimeout())
                 .header("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.noBody())
+                .GET()
                 .build();
 
         return handleTypedResponse(
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString()),
                 ClientInitResponse.class
-        ).thenApply(initResponse -> {
-            if (!initResponse.isValid()) {
-                throw new ConfigurationException("Invalid initialization response from server");
-            }
-            return initResponse;
-        });
+        );
     }
 
-    /**
-     * Submits volunteer preferences with automatic client ID inclusion.
-     *
-     * @param serviceIds Ordered list of service preferences
-     * @return CompletableFuture with server acknowledgement
-     */
-    public CompletableFuture<String> submitPreferences(List<String> serviceIds) {
-        PreferenceUpdate payload = new PreferenceUpdate(serviceIds);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(Environment.getRestBaseUrl() + PREFERENCES_ENDPOINT))
-                .timeout(Environment.getReadTimeout())
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
-                .build();
-
-        return handleResponse(client.sendAsync(request, HttpResponse.BodyHandlers.ofString()));
-    }
+//    public CompletableFuture<String> submitPreferences(List<String> serviceIds) {
+//        PreferenceUpdate payload = new PreferenceUpdate(serviceIds);
+//
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create(Environment.getRestBaseUrl() + PREFERENCES_ENDPOINT))
+//                .timeout(Environment.getReadTimeout())
+//                .header("Content-Type", "application/json")
+//                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
+//                .build();
+//
+//        return handleResponse(client.sendAsync(request, HttpResponse.BodyHandlers.ofString()));
+//    }
 
     /**
      * Generic response handler for typed responses.

@@ -1,11 +1,15 @@
 package org.volunteer.client;
 
 import org.volunteer.client.exception.NetworkException;
+import org.volunteer.client.gui.NameDialog;
+import org.volunteer.client.model.ClientInitResponse;
+import org.volunteer.client.network.NetworkListener;
 import org.volunteer.client.network.config.Environment;
 import org.volunteer.client.exception.ConfigurationException;
 import org.volunteer.client.gui.MainFrame;
 import org.volunteer.client.network.RestClient;
 import org.volunteer.client.network.WebSocketHandler;
+import org.volunteer.client.session.SessionManager;
 
 import javax.swing.*;
 import java.net.http.HttpClient;
@@ -37,19 +41,18 @@ public class Main {
         RestClient restClient = new RestClient(httpClient);
 //        WebSocketHandler webSocketHandler = new WebSocketHandler();
 
-        // Initialize main UI
-        MainFrame mainFrame = new MainFrame();
-//        mainFrame.setVisible(true);
+//        NameDialog dialog = new NameDialog();
+//        dialog.pack();
+//        dialog.setVisible(true);
 
-        // Load initial data
-//        try {
-//            mainFrame.loadInitialServices();
-//        } catch (NetworkException e) {
-//            mainFrame.showErrorDialog(
-//                    "Connection Error",
-//                    "Failed to load services: " + e.getMessage()
-//            );
-//        }
+        try {
+            ClientInitResponse response = restClient.initializeClient().get();
+            SessionManager.setClientId(response.clientId());
+            // Initialize main UI
+            MainFrame mainFrame = new MainFrame(response.services());
+        } catch (Exception e) {
+            showFatalError("Initialization Failed", e.getMessage());
+        }
     }
 
     private static void showFatalError(String title, String message) {
