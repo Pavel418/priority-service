@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.volunteer.client.exception.ConfigurationException;
 import org.volunteer.client.model.ClientInitResponse;
+import org.volunteer.client.model.PreferenceUpdate;
 import org.volunteer.client.network.config.Environment;
 
 import java.net.URI;
@@ -61,18 +62,18 @@ public final class RestClient {
         );
     }
 
-//    public CompletableFuture<String> submitPreferences(List<String> serviceIds) {
-//        PreferenceUpdate payload = new PreferenceUpdate(serviceIds);
-//
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(URI.create(Environment.getRestBaseUrl() + PREFERENCES_ENDPOINT))
-//                .timeout(Environment.getReadTimeout())
-//                .header("Content-Type", "application/json")
-//                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
-//                .build();
-//
-//        return handleResponse(client.sendAsync(request, HttpResponse.BodyHandlers.ofString()));
-//    }
+    public CompletableFuture<String> submitPreferences(List<String> serviceIds) {
+        PreferenceUpdate payload = new PreferenceUpdate(serviceIds);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(Environment.getRestBaseUrl() + PREFERENCES_ENDPOINT))
+                .timeout(Environment.getReadTimeout())
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
+                .build();
+
+        return handleResponse(client.sendAsync(request, HttpResponse.BodyHandlers.ofString()));
+    }
 
     /**
      * Generic response handler for typed responses.
