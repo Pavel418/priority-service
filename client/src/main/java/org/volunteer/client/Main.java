@@ -8,8 +8,11 @@ import org.volunteer.client.network.RestClient;
 import org.volunteer.client.network.WebSocketHandler;
 
 import javax.swing.*;
+import java.net.http.HttpClient;
 
 public class Main {
+    public final static HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+
     public static void main(String[] args) {
         // Verify environment first
         try {
@@ -31,7 +34,7 @@ public class Main {
 
     private static void initializeApplication() {
         // Create network components
-        RestClient restClient = new RestClient();
+        RestClient restClient = new RestClient(httpClient);
 //        WebSocketHandler webSocketHandler = new WebSocketHandler();
 
         // Initialize main UI
