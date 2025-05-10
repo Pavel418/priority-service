@@ -52,28 +52,14 @@
                         </constraints>
                         <properties/>
                       </component>
-                      <scrollpane id="e6db8" binding="scrollPane1">
+                      <grid id="81b59" binding="servicesList" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
                         <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
                         <border type="none"/>
-                        <children>
-                          <grid id="d44c9" binding="servicesPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-                            <constraints/>
-                            <properties/>
-                            <border type="none"/>
-                            <children>
-                              <component id="82c5c" class="javax.swing.JTextField" binding="sigmaTextField" default-binding="true">
-                                <constraints/>
-                                <properties>
-                                  <text value="sigma"/>
-                                </properties>
-                              </component>
-                            </children>
-                          </grid>
-                        </children>
-                      </scrollpane>
+                        <children/>
+                      </grid>
                     </children>
                   </grid>
                   <splitpane id="7840d">
@@ -114,22 +100,52 @@
                               </component>
                             </children>
                           </grid>
-                          <grid id="b725e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                          <grid id="b725e" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                             <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints border-constraint="Center"/>
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <component id="4e5f8" class="javax.swing.JTextPane" binding="dropTop5PreferedTextPane" default-binding="true">
+                              <grid id="c3775" binding="slot1" layout-manager="BorderLayout" hgap="0" vgap="0">
                                 <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                                    <preferred-size width="150" height="50"/>
-                                  </grid>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                                 </constraints>
-                                <properties>
-                                  <text value="Drop Top 5 Prefered Services Here"/>
-                                </properties>
-                              </component>
+                                <properties/>
+                                <border type="none" title="1. Drag service here"/>
+                                <children/>
+                              </grid>
+                              <grid id="ea8be" binding="slot5" layout-manager="BorderLayout" hgap="0" vgap="0">
+                                <constraints>
+                                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                                <border type="none" title="5. Drag service here"/>
+                                <children/>
+                              </grid>
+                              <grid id="f955f" binding="slot4" layout-manager="BorderLayout" hgap="0" vgap="0">
+                                <constraints>
+                                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                                <border type="none" title="4. Drag service here"/>
+                                <children/>
+                              </grid>
+                              <grid id="844a9" binding="slot3" layout-manager="BorderLayout" hgap="0" vgap="0">
+                                <constraints>
+                                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                                <border type="none" title="3. Drag service here"/>
+                                <children/>
+                              </grid>
+                              <grid id="fefd0" binding="slot2" layout-manager="BorderLayout" hgap="0" vgap="0">
+                                <constraints>
+                                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties/>
+                                <border type="none" title="2. Drag service here"/>
+                                <children/>
+                              </grid>
                             </children>
                           </grid>
                         </children>

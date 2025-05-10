@@ -1,7 +1,9 @@
 package org.volunteer.client.network;
 
+import com.google.gson.JsonSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.volunteer.client.model.AssignmentUpdateResponse;
 import org.volunteer.client.network.config.Environment;
 
 import java.net.URI;
@@ -9,6 +11,8 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
 import java.util.concurrent.*;
+
+import com.google.gson.Gson;
 
 /**
  * Handles WebSocket connectivity and automatic reconnection for the volunteer client.
@@ -26,6 +30,7 @@ import java.util.concurrent.*;
  */
 public class WebSocketHandler implements Listener {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
+    private static final Gson gson = new Gson();
 
     private WebSocket webSocket;
     private final ScheduledExecutorService scheduler;
@@ -127,8 +132,13 @@ public class WebSocketHandler implements Listener {
     public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
         try {
             logger.debug("Received message: {}", data);
-            // Delegate message processing to application callback
-            callback.onAssignmentUpdate(data.toString());
+            // Deserialize JSON into your record
+            AssignmentUpdateResponse response =
+                    gson.fromJson(data.toString(), AssignmentUpdateResponse.class);
+            // Delegate the strongly-typed object
+            callback.onAssignmentUpdate(response);
+        } catch (JsonSyntaxException e) {
+            logger.error("Invalid JSON received over WebSocket", e);
         } catch (Exception e) {
             logger.error("Error handling WebSocket message", e);
         }

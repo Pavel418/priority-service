@@ -1,8 +1,16 @@
 package org.volunteer.client.gui;
 
+import org.volunteer.client.gui.dnd.ServiceTransferHandler;
 import org.volunteer.client.model.Service;
+import org.volunteer.client.network.RestClient;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainFrame extends JFrame {
@@ -13,19 +21,115 @@ public class MainFrame extends JFrame {
     private JTextField noServiceIsAssignedTextField;
     private JButton submitButton;
     private JButton clearButton;
-    private JTextPane dropTop5PreferedTextPane;
-    private JScrollPane scrollPane1;
-    private JTextField sigmaTextField;
-    private JPanel servicesPanel;
+    private JPanel servicesList;
+    private JPanel slot1;
+    private JPanel slot2;
+    private JPanel slot3;
+    private JPanel slot4;
+    private JPanel slot5;
+    private ServiceTransferHandler dndHandler = new ServiceTransferHandler();
+    private RestClient restClient;
 
-    public MainFrame(List<Service> serviceList) {
+    public MainFrame(List<Service> serviceList, RestClient restClient) {
+        this.restClient = restClient;
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        List<JPanel> panels = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
+        for (JPanel panel : panels) {
+            panel.setTransferHandler(dndHandler);
+            panel.setPreferredSize(new Dimension(150, 60));
+        }
 //        ImageIcon icon = new ImageIcon("icon.png"); // Replace with your image path
 //        setIconImage(icon.getImage());
 
+        servicesList.setLayout(new BoxLayout(servicesList, BoxLayout.Y_AXIS));
+        for (Service service : serviceList) {
+            ServiceCard serviceCard = new ServiceCard(service);
+            servicesList.add(serviceCard);
+            serviceCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, serviceCard.getPreferredSize().height));
+            makeDraggable(serviceCard);
+        }
+
+        servicesList.revalidate();
+        servicesList.repaint();
+
+        clearButton.addActionListener(e -> {
+            List<JPanel> slots = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
+
+            for (JPanel slot : slots) {
+                if (slot.getComponentCount() == 1) {
+                    Component comp = slot.getComponent(0);
+                    if (comp instanceof ServiceCard) {
+                        ServiceCard card = (ServiceCard) comp;
+
+                        // 1) Remove from slot
+                        slot.remove(card);
+                        slot.revalidate();
+                        slot.repaint();
+
+                        // 2) Put placeholder back
+                        slot.add(new JLabel("Drag service here"), BorderLayout.CENTER);
+
+                        // 3) Re‑make draggable and add back to the list
+                        makeDraggable(card);
+                        servicesList.add(card);
+                    }
+                }
+            }
+
+            servicesList.revalidate();
+            servicesList.repaint();
+        });
+
+        submitButton.addActionListener(e -> {
+            List<String> idsInPriority = new ArrayList<>();
+            for (JPanel slot : panels) {
+                // each slot has at most one ServiceCard
+                if (slot.getComponentCount() == 1 &&
+                        slot.getComponent(0) instanceof ServiceCard) {
+
+                    ServiceCard card = (ServiceCard)slot.getComponent(0);
+                    idsInPriority.add(card.getService().serviceId());
+                }
+            }
+            // now idsInPriority is [slot1, slot2, ..., slot5] in descending priority
+            try {
+                restClient.submitPreferences(idsInPriority);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Preferences submitted!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to submit: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
         pack();
         setVisible(true);
+    }
+
+    private void makeDraggable(ServiceCard card) {
+        card.setTransferHandler(dndHandler);
+        // Remove any old adapters so we don’t stack them
+        for (MouseListener ml : card.getMouseListeners()) {
+            if (ml instanceof MouseAdapter) {
+                card.removeMouseListener(ml);
+            }
+        }
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                JComponent comp = (JComponent) e.getSource();
+                comp.getTransferHandler().exportAsDrag(comp, e, TransferHandler.MOVE);
+            }
+        });
     }
 }

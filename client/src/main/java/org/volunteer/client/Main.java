@@ -3,12 +3,10 @@ package org.volunteer.client;
 import org.volunteer.client.exception.NetworkException;
 import org.volunteer.client.gui.NameDialog;
 import org.volunteer.client.model.ClientInitResponse;
-import org.volunteer.client.network.NetworkListener;
 import org.volunteer.client.network.config.Environment;
 import org.volunteer.client.exception.ConfigurationException;
 import org.volunteer.client.gui.MainFrame;
 import org.volunteer.client.network.RestClient;
-import org.volunteer.client.network.WebSocketHandler;
 import org.volunteer.client.session.SessionManager;
 
 import javax.swing.*;
@@ -39,7 +37,6 @@ public class Main {
     private static void initializeApplication() {
         // Create network components
         RestClient restClient = new RestClient(httpClient);
-//        WebSocketHandler webSocketHandler = new WebSocketHandler();
 
 //        NameDialog dialog = new NameDialog();
 //        dialog.pack();
@@ -49,7 +46,7 @@ public class Main {
             ClientInitResponse response = restClient.initializeClient().get();
             SessionManager.setClientId(response.clientId());
             // Initialize main UI
-            MainFrame mainFrame = new MainFrame(response.services());
+            MainFrame mainFrame = new MainFrame(response.services(), restClient);
         } catch (Exception e) {
             showFatalError("Initialization Failed", e.getMessage());
         }
