@@ -142,6 +142,7 @@ public class WebSocketHandler implements Listener {
         } catch (Exception e) {
             logger.error("Error handling WebSocket message", e);
         }
+        webSocket.request(1);
         return CompletableFuture.completedStage(null);
     }
 

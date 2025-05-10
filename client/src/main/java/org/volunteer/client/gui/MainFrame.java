@@ -1,8 +1,12 @@
 package org.volunteer.client.gui;
 
 import org.volunteer.client.gui.dnd.ServiceTransferHandler;
+import org.volunteer.client.model.Assignment;
+import org.volunteer.client.model.AssignmentUpdateResponse;
 import org.volunteer.client.model.Service;
+import org.volunteer.client.network.NetworkListener;
 import org.volunteer.client.network.RestClient;
+import org.volunteer.client.network.WebSocketHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements NetworkListener {
     private JPanel panel1;
     private JTabbedPane tabbedPane1;
     private JTextField textField1;
@@ -27,11 +31,15 @@ public class MainFrame extends JFrame {
     private JPanel slot3;
     private JPanel slot4;
     private JPanel slot5;
+    private JTextArea assignmentsText;
     private ServiceTransferHandler dndHandler = new ServiceTransferHandler();
     private RestClient restClient;
+    private WebSocketHandler webSocketHandler;
 
     public MainFrame(List<Service> serviceList, RestClient restClient) {
         this.restClient = restClient;
+        this.webSocketHandler = new WebSocketHandler(this);
+
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -131,5 +139,53 @@ public class MainFrame extends JFrame {
                 comp.getTransferHandler().exportAsDrag(comp, e, TransferHandler.MOVE);
             }
         });
+    }
+
+    @Override
+    public void onAssignmentUpdate(AssignmentUpdateResponse response) {
+        System.out.println("call");
+        // Always update Swing components on the EDT
+        SwingUtilities.invokeLater(() -> {
+            List<Assignment> assigns = response.assignments();
+            if (assigns.isEmpty()) {
+                noServiceIsAssignedTextField.setText(
+                        "No assignments available");
+                assignmentsText.setText("No assignments available");
+            } else {
+                noServiceIsAssignedTextField.setText("");
+                StringBuilder sb = new StringBuilder();
+                for (Assignment a : assigns) {
+                    sb.append(a.volunteerName())
+                            .append(" → ")
+                            .append(a.assignedService().serviceName())
+                            .append("\n");
+                }
+                assignmentsText.setText(sb.toString());
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionEstablished() {
+        SwingUtilities.invokeLater(() ->
+                statusBarMessage("Connected to server"));
+    }
+
+    @Override
+    public void onConnectionFailed() {
+        SwingUtilities.invokeLater(() ->
+                statusBarMessage("Connection failed"));
+    }
+
+    @Override
+    public void onConnectionClosed(int statusCode, String reason) {
+        SwingUtilities.invokeLater(() ->
+                statusBarMessage(
+                        "Connection closed: " + statusCode + " / " + reason));
+    }
+
+    private void statusBarMessage(String msg) {
+        // you can push this into a status bar or dialog
+        System.out.println("[STATUS] " + msg);
     }
 }
