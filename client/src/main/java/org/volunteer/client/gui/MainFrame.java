@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.View;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -50,25 +49,8 @@ public class MainFrame extends JFrame implements NetworkListener {
         this.restClient = restClient;
         this.webSocketHandler = new WebSocketHandler(this);
 
-        mainSplitPane.setResizeWeight(0.35);
-        mainSplitPane.setContinuousLayout(true);
-        rightSplitPane.setResizeWeight(0.6);
-        rightSplitPane.setContinuousLayout(true);
-        leftPanel.setMinimumSize(new Dimension(300, 800));
-        leftPanel.setPreferredSize(new Dimension(300, 800));
-        centerPanel.setMinimumSize(new Dimension(300, 0));
-        centerPanel.setPreferredSize(new Dimension(350, 600));
-        btnPanel.setPreferredSize(new Dimension(0, 40));
-        description.setLineWrap(true);
-        description.setWrapStyleWord(true);
-        description.setEditable(false);
-        rightPanel.setMinimumSize(new Dimension(300, 800));
-        rightPanel.setPreferredSize(new Dimension(300, 800));
-
+        initUIComponents();
         initAssignmentsPane();
-
-        setContentPane(panel1);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         List<JPanel> panels = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
         int i = 1;
@@ -165,6 +147,52 @@ public class MainFrame extends JFrame implements NetworkListener {
         setVisible(true);
     }
 
+    private void initUIComponents() {
+        // Split pane configuration
+        mainSplitPane.setResizeWeight(0.35);
+        mainSplitPane.setContinuousLayout(true);
+        rightSplitPane.setResizeWeight(0.6);
+        rightSplitPane.setContinuousLayout(true);
+
+        // Panel sizing
+        leftPanel.setMinimumSize(new Dimension(300, 800));
+        leftPanel.setPreferredSize(new Dimension(300, 800));
+        centerPanel.setMinimumSize(new Dimension(300, 0));
+        centerPanel.setPreferredSize(new Dimension(350, 600));
+        btnPanel.setPreferredSize(new Dimension(0, 40));
+        rightPanel.setMinimumSize(new Dimension(300, 800));
+        rightPanel.setPreferredSize(new Dimension(300, 800));
+
+        // Text area configuration
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
+        description.setEditable(false);
+
+        // Frame setup
+        setContentPane(panel1);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void setupSlots() {
+        List<JPanel> slots = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
+        int slotNumber = 1;
+
+        for (JPanel slot : slots) {
+            slot.putClientProperty("isSlot", Boolean.TRUE);
+            slot.setLayout(new BorderLayout());
+            slot.setTransferHandler(dndHandler);
+            updateSlotLabel(slot, slotNumber++);
+            slot.setMinimumSize(new Dimension(300, 150));
+            slot.setPreferredSize(new Dimension(300, 150));
+        }
+    }
+
+    private void updateSlotLabel(JPanel slot, int number) {
+        JLabel label = new JLabel(String.format("%d. Drag service here", number));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        slot.add(label, BorderLayout.CENTER);
+    }
+
     private void makeDraggable(ServiceCard card) {
         card.setTransferHandler(dndHandler);
 
@@ -226,44 +254,6 @@ public class MainFrame extends JFrame implements NetworkListener {
         });
     }
 
-
-    @Override
-    public void onConnectionEstablished() {
-        SwingUtilities.invokeLater(() ->
-                statusBarMessage("Connected to server"));
-    }
-
-    @Override
-    public void onConnectionFailed() {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Could not connect to the server.\nPlease try again later and relaunch the application.",
-                    "Connection Failed",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            System.exit(1); // Exit the application
-        });
-    }
-
-    @Override
-    public void onConnectionClosed(int statusCode, String reason) {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Connection to the server was closed.\nPlease try again later and relaunch the application.",
-                    "Connection Closed",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            System.exit(1); // Exit the application
-        });
-    }
-
-    private void statusBarMessage(String msg) {
-        // you can push this into a status bar or dialog
-        System.out.println("[STATUS] " + msg);
-    }
-
     /**
      * Fill the right‐hand text area with the full service description.
      */
@@ -292,5 +282,37 @@ public class MainFrame extends JFrame implements NetworkListener {
         SimpleAttributeSet attrs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, initial.length(), attrs, false);
+    }
+
+    @Override
+    public void onConnectionEstablished() {
+        SwingUtilities.invokeLater(() ->
+                System.out.println("[STATUS] Connection established!"));
+    }
+
+    @Override
+    public void onConnectionFailed() {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not connect to the server.\nPlease try again later and relaunch the application.",
+                    "Connection Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            System.exit(1); // Exit the application
+        });
+    }
+
+    @Override
+    public void onConnectionClosed(int statusCode, String reason) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Connection to the server was closed.\nPlease try again later and relaunch the application.",
+                    "Connection Closed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            System.exit(1); // Exit the application
+        });
     }
 }
