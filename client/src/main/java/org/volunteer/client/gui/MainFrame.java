@@ -173,26 +173,6 @@ public class MainFrame extends JFrame implements NetworkListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void setupSlots() {
-        List<JPanel> slots = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
-        int slotNumber = 1;
-
-        for (JPanel slot : slots) {
-            slot.putClientProperty("isSlot", Boolean.TRUE);
-            slot.setLayout(new BorderLayout());
-            slot.setTransferHandler(dndHandler);
-            updateSlotLabel(slot, slotNumber++);
-            slot.setMinimumSize(new Dimension(300, 150));
-            slot.setPreferredSize(new Dimension(300, 150));
-        }
-    }
-
-    private void updateSlotLabel(JPanel slot, int number) {
-        JLabel label = new JLabel(String.format("%d. Drag service here", number));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        slot.add(label, BorderLayout.CENTER);
-    }
-
     private void makeDraggable(ServiceCard card) {
         card.setTransferHandler(dndHandler);
 
