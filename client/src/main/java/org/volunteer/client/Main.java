@@ -1,6 +1,5 @@
 package org.volunteer.client;
 
-import org.volunteer.client.exception.NetworkException;
 import org.volunteer.client.gui.NameDialog;
 import org.volunteer.client.model.ClientInitResponse;
 import org.volunteer.client.network.config.Environment;
