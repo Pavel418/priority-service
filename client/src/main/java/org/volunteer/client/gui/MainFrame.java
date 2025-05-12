@@ -23,8 +23,6 @@ import java.util.List;
 
 public class MainFrame extends JFrame implements NetworkListener {
     private JPanel panel1;
-    private JTabbedPane tabbedPane1;
-    private JTextField textField1;
     private JButton submitButton;
     private JButton clearButton;
     private JPanel servicesList;
@@ -33,6 +31,7 @@ public class MainFrame extends JFrame implements NetworkListener {
     private JPanel slot3;
     private JPanel slot4;
     private JPanel slot5;
+    private List<JPanel> slots;
     private JTextPane assignmentsText;
     private JSplitPane rightSplitPane;
     private JSplitPane mainSplitPane;
@@ -48,100 +47,13 @@ public class MainFrame extends JFrame implements NetworkListener {
     public MainFrame(List<Service> serviceList, RestClient restClient) {
         this.restClient = restClient;
         this.webSocketHandler = new WebSocketHandler(this);
+        this.slots = List.of(slot1, slot2, slot3, slot4, slot5);
 
         initUIComponents();
         initAssignmentsPane();
-
-        List<JPanel> panels = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
-        int i = 1;
-        for (JPanel panel : panels) {
-            panel.putClientProperty("isSlot", Boolean.TRUE);
-            panel.setLayout(new BorderLayout());
-            panel.setTransferHandler(dndHandler);
-            JLabel label = new JLabel(String.format("%d. Drag service here", i));
-            i++;
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            panel.add(label, BorderLayout.CENTER);
-            panel.setMinimumSize(new Dimension(300, 150));
-            panel.setPreferredSize(new Dimension(300, 150));
-
-        }
-//        ImageIcon icon = new ImageIcon("icon.png"); // Replace with your image path
-//        setIconImage(icon.getImage());
-
-        servicesList.setLayout(new BoxLayout(servicesList, BoxLayout.Y_AXIS));
-        for (Service service : serviceList) {
-            ServiceCard serviceCard = new ServiceCard(service);
-            servicesList.add(serviceCard);
-            serviceCard.setMinimumSize(new Dimension(300, 60));
-            serviceCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-            makeDraggable(serviceCard);
-        }
-
-        // This lambda runs on successful drop
-        dndHandler.setOnImportSuccess(this::showServiceDescription);
-
-        servicesList.revalidate();
-        servicesList.repaint();
-
-        clearButton.addActionListener(e -> {
-            List<JPanel> slots = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
-
-            int j = 1;
-            for (JPanel slot : slots) {
-                if (slot.getComponentCount() == 1) {
-                    Component comp = slot.getComponent(0);
-                    if (comp instanceof ServiceCard card) {
-                        // 1) Remove from slot
-                        slot.removeAll();
-
-                        JLabel label = new JLabel(String.format("%d. Drag service here", j));
-                        label.setHorizontalAlignment(SwingConstants.CENTER);
-                        slot.add(label, BorderLayout.CENTER);
-
-                        slot.revalidate();
-                        slot.repaint();
-
-                        // 3) Re‑make draggable and add back to the list
-                        makeDraggable(card);
-                        servicesList.add(card);
-                    }
-                }
-                j++;
-            }
-
-            servicesList.revalidate();
-            servicesList.repaint();
-        });
-
-        submitButton.addActionListener(e -> {
-            List<String> idsInPriority = new ArrayList<>();
-            for (JPanel slot : panels) {
-                // each slot has at most one ServiceCard
-                if (slot.getComponentCount() == 1 &&
-                        slot.getComponent(0) instanceof ServiceCard card) {
-
-                    idsInPriority.add(card.getService().serviceId());
-                }
-            }
-            // now idsInPriority is [slot1, slot2, ..., slot5] in descending priority
-            try {
-                this.restClient.submitPreferences(idsInPriority);
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Preferences submitted!",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Failed to submit: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
-        });
+        initSlotPanels();
+        setupServiceList(serviceList);
+        registerHandlers();
 
         pack();
         setVisible(true);
@@ -171,6 +83,42 @@ public class MainFrame extends JFrame implements NetworkListener {
         // Frame setup
         setContentPane(panel1);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void registerHandlers() {
+        clearButton.addActionListener(e -> clearSlots());
+        submitButton.addActionListener(e -> submitPreferences());
+    }
+
+    private void clearSlots() {
+        for (int i = 0; i < slots.size(); i++) {
+            JPanel slot = slots.get(i);
+            if (slot.getComponentCount() == 1 && slot.getComponent(0) instanceof ServiceCard card) {
+                slot.removeAll();
+                // restore placeholder
+                configureSlot(slot, i + 1);
+                // return card to list
+                makeDraggable(card);
+                servicesList.add(card);
+            }
+        }
+        servicesList.revalidate();
+        servicesList.repaint();
+    }
+
+    private void submitPreferences() {
+        List<String> idsInPriority = new ArrayList<>();
+        for (JPanel slot : slots) {
+            if (slot.getComponentCount() == 1 && slot.getComponent(0) instanceof ServiceCard) {
+                idsInPriority.add(((ServiceCard) slot.getComponent(0)).getService().serviceId());
+            }
+        }
+        try {
+            restClient.submitPreferences(idsInPriority);
+            JOptionPane.showMessageDialog(this, "Preferences submitted!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Failed to submit: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void makeDraggable(ServiceCard card) {
@@ -216,13 +164,12 @@ public class MainFrame extends JFrame implements NetworkListener {
                 assignmentsText.setText("No assignment available.");
             } else {
                 Service svc = myAssign.assignedService();
-                StringBuilder sb = new StringBuilder();
-                sb.append("Your assigned service is:\n")
-                        .append(svc.serviceName())
-                        .append("\n\n")
-                        .append("Service description:\n")
-                        .append(svc.serviceDescription());
-                assignmentsText.setText(sb.toString());
+                String sb = "Your assigned service is:\n" +
+                        svc.serviceName() +
+                        "\n\n" +
+                        "Service description:\n" +
+                        svc.serviceDescription();
+                assignmentsText.setText(sb);
                 assignmentsText.setCaretPosition(0);
 
             }
@@ -262,6 +209,48 @@ public class MainFrame extends JFrame implements NetworkListener {
         SimpleAttributeSet attrs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, initial.length(), attrs, false);
+    }
+
+    private void setupServiceList(List<Service> serviceList) {
+        servicesList.setLayout(new BoxLayout(servicesList, BoxLayout.Y_AXIS));
+        for (Service service : serviceList) {
+            ServiceCard card = new ServiceCard(service);
+            servicesList.add(card);
+            card.setMinimumSize(new Dimension(300, 60));
+            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+            makeDraggable(card);
+        }
+        servicesList.revalidate();
+        servicesList.repaint();
+
+        dndHandler.setOnImportSuccess(this::showServiceDescription);
+    }
+
+    /**
+     * Initialize and configure the five drop slots.
+     */
+    private void initSlotPanels() {
+        List<JPanel> slots = Arrays.asList(slot1, slot2, slot3, slot4, slot5);
+        for (int i = 0; i < slots.size(); i++) {
+            configureSlot(slots.get(i), i + 1);
+        }
+    }
+
+    /**
+     * Apply common configuration to a slot panel.
+     */
+    private void configureSlot(JPanel panel, int index) {
+        panel.putClientProperty("isSlot", Boolean.TRUE);
+        panel.setLayout(new BorderLayout());
+        panel.setTransferHandler(dndHandler);
+
+        JLabel label = new JLabel(index + ". Drag service here");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(label, BorderLayout.CENTER);
+
+        Dimension size = new Dimension(300, 150);
+        panel.setMinimumSize(size);
+        panel.setPreferredSize(size);
     }
 
     @Override
