@@ -40,6 +40,8 @@ public class MainFrame extends JFrame implements NetworkListener {
     private JPanel btnPanel;
     private JPanel rightPanel;
     private JTextArea description;
+    private JTabbedPane tabbedPane1;
+    private JTextField textField1;
     private final ServiceTransferHandler dndHandler = new ServiceTransferHandler();
     private final RestClient restClient;
     private final WebSocketHandler webSocketHandler;
