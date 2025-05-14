@@ -1,14 +1,5 @@
 package org.volunteer.client.network;
 
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.volunteer.client.exception.ConfigurationException;
-import org.volunteer.client.model.ClientInitResponse;
-import org.volunteer.client.model.PreferenceUpdate;
-import org.volunteer.client.network.config.Environment;
-import org.volunteer.client.exception.HttpException;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,6 +8,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.volunteer.client.exception.ConfigurationException;
+import org.volunteer.client.exception.HttpException;
+import org.volunteer.client.model.ClientInitResponse;
+import org.volunteer.client.model.PreferenceUpdate;
+import org.volunteer.client.network.config.Environment;
+
+import com.google.gson.Gson;
 
 /**
  * REST client for interacting with volunteer service API endpoints.
@@ -85,7 +86,7 @@ public final class RestClient {
      */
     public CompletableFuture<String> submitPreferences(List<String> serviceIds) {
         PreferenceUpdate payload = new PreferenceUpdate(serviceIds);
-
+        
         HttpRequest request = newRequestBuilder(PREFERENCES_ENDPOINT)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
@@ -135,10 +136,12 @@ public final class RestClient {
             CompletableFuture<HttpResponse<String>> future,
             Class<T> responseType
     ) {
-        return future.thenApply(response -> {
-            validateStatusCode(response);
-            return gson.fromJson(response.body(), responseType);
-        }).exceptionally(this::handleError);
+        return future
+            .thenApply(response -> {
+                validateStatusCode(response);
+                return gson.fromJson(response.body(), responseType);
+            })
+            .exceptionally(this::handleError);
     }
 
     /**
@@ -147,7 +150,7 @@ public final class RestClient {
      * @param response HTTP response to validate
      * @throws HttpException Containing status code and response body for error responses
      */
-    private void validateStatusCode(HttpResponse<?> response) {
+    private void validateStatusCode(HttpResponse<String> response) {
         int status = response.statusCode();
         if (status < 200 || status >= 300) {
             String body = response.body() != null ?
@@ -161,20 +164,20 @@ public final class RestClient {
      * Centralized error handler that unwraps CompletionException and converts to
      * appropriate runtime exception.
      *
-     * @param ex Original exception from future chain
+     * @param throwable Original exception from future chain
      * @return Never returns normally, always throws
      * @throws RuntimeException Wrapping the root cause of the failure
      */
-    private <T> T handleError(Throwable ex) {
-        Throwable cause = ex instanceof CompletionException ? ex.getCause() : ex;
-
-        if (cause instanceof HttpException httpEx) {
-            logger.error("Service returned error status: {} - {}",
-                    httpEx.getStatusCode(), httpEx.getResponseBody());
-        } else {
-            logger.error("Network failure during API operation", cause);
+    private <T> T handleError(Throwable throwable) {
+        // Check if the cause is HttpException and rethrow if it is.
+        // Reverted to pre-Java 16 instanceof check
+        if (throwable instanceof CompletionException && throwable.getCause() instanceof HttpException) {
+             HttpException httpEx = (HttpException) throwable.getCause();
+            logger.error("Service returned error status: {} - {}", httpEx.getStatusCode(), httpEx.getMessage());
+            throw new RuntimeException("API operation failed", httpEx);
         }
-
-        throw new RuntimeException("API operation failed", cause);
+        // Log other exceptions and wrap them.
+        logger.error("HTTP request failed: {}", throwable.getMessage(), throwable);
+        throw new RuntimeException("API operation failed", throwable);
     }
 }

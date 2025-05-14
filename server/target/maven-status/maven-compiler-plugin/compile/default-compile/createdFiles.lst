@@ -1,0 +1,3 @@
+org\volunteer\server\data\ServiceCatalog.class
+org\volunteer\server\VolunteerAssignmentServerApplication.class
+org\volunteer\server\service\PreferenceService.class

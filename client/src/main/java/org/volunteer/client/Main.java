@@ -1,57 +1,78 @@
 package org.volunteer.client;
 
-import org.volunteer.client.gui.NameDialog;
-import org.volunteer.client.model.ClientInitResponse;
-import org.volunteer.client.network.config.Environment;
-import org.volunteer.client.exception.ConfigurationException;
+import java.net.http.HttpClient;
+// import java.util.ArrayList; // No longer needed
+import java.util.List; // Keep
+import java.util.UUID; // Keep
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger; // Added logger
+import org.slf4j.LoggerFactory; // Added logger
 import org.volunteer.client.gui.MainFrame;
+import org.volunteer.client.model.ClientInitResponse; // Added import
+import org.volunteer.client.model.Service; // Keep
 import org.volunteer.client.network.RestClient;
+import org.volunteer.client.network.config.Environment;
 import org.volunteer.client.session.SessionManager;
 
-import javax.swing.*;
-import java.net.http.HttpClient;
-
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class); // Added logger
     public final static HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
 
     public static void main(String[] args) {
+        logger.info("Starting volunteer client application...");
         // Verify environment first
         try {
             Environment.getRestBaseUrl(); // Triggers config validation
+            logger.debug("Environment configuration loaded.");
         } catch (ExceptionInInitializerError e) {
-            showFatalError("Configuration Error", e.getCause().getMessage());
+            logger.error("Failed to load environment configuration", e.getCause());
+            showFatalError("Configuration Error", "Failed to load environment.properties: " + e.getCause().getMessage());
             return;
         }
 
-        // Start GUI on EDT
+        // Start GUI initialization on EDT
+        logger.info("Scheduling application initialization on EDT...");
         SwingUtilities.invokeLater(() -> {
-            try {
-                initializeApplication();
-            } catch (Exception e) {
-                showFatalError("Initialization Failed", e.getMessage());
-            }
+            initializeApplication();
         });
+        logger.info("main method finished.");
     }
 
     private static void initializeApplication() {
+        logger.info("Initializing application...");
         // Create network components
         RestClient restClient = new RestClient(httpClient);
 
-//        NameDialog dialog = new NameDialog();
-//        dialog.pack();
-//        dialog.setVisible(true);
+        logger.info("Calling server for initialization data...");
+        restClient.initializeClient()
+            .thenAccept(response -> {
+                // Run UI creation on EDT
+                SwingUtilities.invokeLater(() -> {
+                    String clientId = response.clientId();
+                    List<Service> services = response.services();
+                    logger.info("Received initialization data: ClientId={}, Services={}", clientId, services.size());
 
-        try {
-            ClientInitResponse response = restClient.initializeClient().get();
-            SessionManager.setClientId(response.clientId());
-            // Initialize main UI
-            MainFrame mainFrame = new MainFrame(response.services(), restClient);
-        } catch (Exception e) {
-            showFatalError("Initialization Failed", e.getMessage());
-        }
+                    SessionManager.setClientId(clientId);
+                    logger.debug("Client ID set in session: {}", clientId);
+
+                    logger.info("Initializing main UI frame...");
+                    new MainFrame(services, restClient);
+                    logger.info("MainFrame initialized and visible.");
+                });
+            })
+            .exceptionally(ex -> {
+                // Handle initialization errors (e.g., server unreachable)
+                logger.error("Error during application initialization call", ex);
+                showFatalError("Initialization Failed", "Could not contact server: " + ex.getMessage());
+                return null; // Required for exceptionally
+            });
     }
 
     private static void showFatalError(String title, String message) {
+        logger.error("Fatal Error - Title: {}, Message: {}", title, message);
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(
                         null,
@@ -60,6 +81,7 @@ public class Main {
                         JOptionPane.ERROR_MESSAGE
                 )
         );
-        System.exit(1);
+        // Consider if immediate exit is always desired
+        // System.exit(1);
     }
 }

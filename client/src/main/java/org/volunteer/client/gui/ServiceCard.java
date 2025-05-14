@@ -22,7 +22,7 @@ import java.awt.*;
  * @see Service
  */
 public class ServiceCard extends JPanel {
-    private JPanel panel1;
+    // private JPanel panel1; // This field seems unused and can be removed if it was from a GUI builder
     private final Service service;
 
     /**
@@ -34,13 +34,20 @@ public class ServiceCard extends JPanel {
      */
     public ServiceCard(Service service) {
         this.service = service;
-        JLabel textLabel = new JLabel(service.serviceName());
-        textLabel.setFocusable(false);
-        textLabel.setOpaque(false);
-        textLabel.setBorder(null);
 
-        add(textLabel, BorderLayout.CENTER);
-        setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+        setBackground(new Color(245, 245, 245));   // ★ gives it its own surface
+        setOpaque(true);                           // ★ <- crucial for mouse events
+
+        JLabel title = new JLabel(service.serviceName(), SwingConstants.CENTER);
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 14f));
+        // title.setFocusable(false); // Not in the patch, but was there. Removing to match patch.
+        // title.setOpaque(false); // Not in the patch, but was there. Removing to match patch.
+        // title.setBorder(null); // Not in the patch, but was there. Removing to match patch.
+        add(title, BorderLayout.CENTER);
+
+        setFocusable(true); // Keep this as it was in previous version and generally good for DnD sources
     }
 
     /**
