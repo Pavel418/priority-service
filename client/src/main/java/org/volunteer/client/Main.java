@@ -37,15 +37,15 @@ public class Main {
         // Create network components
         RestClient restClient = new RestClient(httpClient);
 
-//        NameDialog dialog = new NameDialog();
-//        dialog.pack();
-//        dialog.setVisible(true);
+        NameDialog dialog = new NameDialog();
+        dialog.pack();
+        dialog.setVisible(true);
 
         try {
             ClientInitResponse response = restClient.initializeClient().get();
             SessionManager.setClientId(response.clientId());
             // Initialize main UI
-            MainFrame mainFrame = new MainFrame(response.services(), restClient);
+            new MainFrame(response.services(), restClient);
         } catch (Exception e) {
             showFatalError("Initialization Failed", e.getMessage());
         }
