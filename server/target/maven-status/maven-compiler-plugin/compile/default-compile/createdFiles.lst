@@ -10,13 +10,8 @@ org\volunteer\server\dto\ClientInitResponse.class
 org\volunteer\server\service\PreferenceService.class
 org\volunteer\server\config\PlainWebSocketConfig.class
 org\volunteer\server\dto\AssignmentDto.class
-org\volunteer\server\ga\Chromosome.class
 org\volunteer\server\api\ClientController.class
 org\volunteer\server\dto\PreferenceUpdateRequest.class
 org\volunteer\server\dto\AssignmentUpdateResponse.class
-org\volunteer\server\ga\ProblemInstance.class
-org\volunteer\server\model\VolunteerPreference.class
 org\volunteer\server\service\AssignmentService.class
 org\volunteer\server\controller\ApiController.class
-org\volunteer\server\controller\WebSocketController.class
-org\volunteer\server\ga\GeneticAlgorithm.class

@@ -1,4 +1,3 @@
-// Path: src/main/java/org/volunteer/server/service/GAService.java
 package org.volunteer.server.service;
 
 import org.springframework.stereotype.Service;
@@ -10,36 +9,40 @@ import org.volunteer.server.model.VolunteerPreference;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
-/**
- * Thin façade that turns the current snapshot into a {@link ProblemInstance}
- * and runs the GA on a background executor.
- */
 @Service
 public class GAService {
 
     private final ExecutorService executor;
+
+    /**
+     * Holds the Future for the currently running GA task (if any).
+     * Volatile so visibility is guaranteed across threads.
+     */
+    private volatile Future<?> currentTask;
 
     public GAService(ExecutorService gaExecutor) {
         this.executor = gaExecutor;
     }
 
     /**
-     * Launch optimisation asynchronously and return a future with the best gene
-     * vector (service index for each volunteer) once the GA finishes.
+     * Launch optimisation asynchronously.  If a previous run is
+     * still in-flight, cancel it immediately (via interruption).
      */
-    public CompletableFuture<int[]> solveAsync(Collection<VolunteerPreference> prefs,
-                                               List<ServiceMeta> services) {
+    public synchronized CompletableFuture<int[]> solveAsync(Collection<VolunteerPreference> prefs,
+                                                            List<ServiceMeta> services) {
+        // 1) Cancel any in-progress GA
+        if (currentTask != null && !currentTask.isDone()) {
+            currentTask.cancel(true);
+        }
 
-        /* serviceId -> index lookup table */
+        // 2) Build the problem instance
         Map<String, Integer> svcIndex = new HashMap<>();
         for (int i = 0; i < services.size(); i++) {
             svcIndex.put(services.get(i).id(), i);
         }
-
-        /* penalty constant from the spec: 10 × Ns², with Ns ≤ 5 → 10 is enough */
         int preferencePenalty = 10;
-
         ProblemInstance instance = new ProblemInstance(
                 List.copyOf(prefs),
                 services,
@@ -47,7 +50,21 @@ public class GAService {
                 preferencePenalty
         );
 
-        /* run GA on the dedicated thread and return the future */
-        return CompletableFuture.supplyAsync(() -> GeneticAlgorithm.run(instance), executor);
+        // 3) Submit new GA task, capturing its Future
+        CompletableFuture<int[]> resultFuture = new CompletableFuture<>();
+        currentTask = executor.submit(() -> {
+            try {
+                int[] genes = GeneticAlgorithm.run(instance);
+                resultFuture.complete(genes);
+            } catch (InterruptedException e) {
+                // Task was cancelled: propagate cancellation
+                resultFuture.cancel(true);
+            } catch (Exception ex) {
+                // Any other error
+                resultFuture.completeExceptionally(ex);
+            }
+        });
+
+        return resultFuture;
     }
 }
