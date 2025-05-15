@@ -6,10 +6,11 @@ import java.util.List;
 /**
  * Represents a volunteer's preference list.
  */
-public record VolunteerPreference(String volunteerId,
+public record VolunteerPreference(String volunteerId, String volunteerName,
                                   List<String> rankedServiceIds) implements Serializable {
-    public VolunteerPreference(String volunteerId, List<String> rankedServiceIds) {
+    public VolunteerPreference(String volunteerId, String volunteerName, List<String> rankedServiceIds) {
         this.volunteerId = volunteerId;
+        this.volunteerName = volunteerName;
         this.rankedServiceIds = List.copyOf(rankedServiceIds);
     }
 } 
