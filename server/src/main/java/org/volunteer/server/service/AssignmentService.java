@@ -2,7 +2,6 @@ package org.volunteer.server.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -14,62 +13,71 @@ import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.web.PlainAssignmentHandler;
 
+/**
+ * Coordinates volunteer assignment optimization using genetic algorithms.
+ * <p>
+ * Automatically triggers on preference changes and broadcasts optimized assignments
+ * via WebSocket. Requires at least 3 preferences to initiate optimization. All
+ * operations are asynchronous and non-blocking.
+ */
 @Service
 public class AssignmentService {
 
     private final PreferenceService preferenceService;
     private final GAService gaService;
     private final ServiceCatalog catalog;
+    private final PlainAssignmentHandler plainWs;
 
-    private final SimpMessagingTemplate stompBroker;   // old path
-    private final PlainAssignmentHandler plainWs;      // new path
-
-    private final AtomicReference<List<AssignmentDto>> last = new AtomicReference<>(List.of());
-
+    /**
+     * Constructs the service with required dependencies.
+     *
+     * @param prefSvc preference storage and retrieval service
+     * @param gaSvc genetic algorithm optimization engine
+     * @param catalog service metadata catalog
+     * @param plainWs WebSocket handler for broadcasting assignments
+     */
     public AssignmentService(PreferenceService prefSvc,
                              GAService gaSvc,
                              ServiceCatalog catalog,
-                             @Autowired(required = false) SimpMessagingTemplate stompBroker,
                              PlainAssignmentHandler plainWs) {
         this.preferenceService = prefSvc;
         this.gaService = gaSvc;
         this.catalog = catalog;
-        this.stompBroker = stompBroker;
         this.plainWs = plainWs;
     }
 
-    /** Called every time preferences change (auto-trigger). */
+    /**
+     * Initiates optimization workflow when preferences change.
+     * <p>
+     * Automatic trigger that requires minimum 3 preferences to start. Optimizes
+     * asynchronously and broadcasts results through WebSocket upon completion.
+     */
     public void startOptimisation() {
         List<VolunteerPreference> snapshot = preferenceService.orderedSnapshot();
-        if (snapshot.size() < 3) return;            // threshold
-    
+        if (snapshot.size() < 3) return;  // Minimum viable population threshold
+
         gaService.solveAsync(snapshot, catalog.all())
-                 .thenAccept(genes -> handleResult(snapshot, genes));
+                .thenAccept(genes -> handleResult(snapshot, genes));
     }
-    
-    
 
-    public List<AssignmentDto> current() { return last.get(); }
-
-    /* ---------- private ---------- */
+    /**
+     * Transforms genetic algorithm results into broadcast-ready assignments.
+     *
+     * @param vpList snapshot used for optimization (preserves order consistency)
+     * @param genes optimized service indices from genetic algorithm
+     */
     private void handleResult(List<VolunteerPreference> vpList, int[] genes) {
         List<ServiceMeta> services = catalog.all();
         List<AssignmentDto> out = new ArrayList<>(genes.length);
-    
+
         for (int i = 0; i < genes.length; i++) {
             VolunteerPreference vp = vpList.get(i);
-            ServiceMeta svc       = services.get(genes[i]);
+            ServiceMeta svc = services.get(genes[i]);
             out.add(new AssignmentDto(vp.volunteerId(),
-                                      vp.volunteerName(),
-                                      svc));
+                    vp.volunteerName(),
+                    svc));
         }
-    
-        last.set(out);
-        AssignmentUpdateResponse payload = new AssignmentUpdateResponse(out);
-        if (stompBroker != null)
-            stompBroker.convertAndSend("/topic/assignment", payload);
-        plainWs.broadcast(payload);
+
+        plainWs.broadcast(new AssignmentUpdateResponse(out));
     }
-    
-    
-} 
+}

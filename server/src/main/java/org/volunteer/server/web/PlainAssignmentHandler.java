@@ -3,6 +3,8 @@ package org.volunteer.server.web;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -20,6 +22,7 @@ public class PlainAssignmentHandler extends TextWebSocketHandler {
 
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
     private final ObjectMapper mapper = new ObjectMapper();
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -45,7 +48,7 @@ public class PlainAssignmentHandler extends TextWebSocketHandler {
             TextMessage msg = new TextMessage(json);
             sessions.forEach(s -> safeSend(s, msg));
         } catch (Exception e) {
-            // log & drop – broadcast failures must never crash GA thread
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
