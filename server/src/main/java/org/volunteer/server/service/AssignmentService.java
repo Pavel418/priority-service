@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.volunteer.server.data.ServiceCatalog;
-import org.volunteer.server.dto.AssignmentDto;
-import org.volunteer.server.dto.AssignmentUpdateResponse;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
+import org.volunteer.server.model.dto.AssignmentDto;
+import org.volunteer.server.model.dto.AssignmentUpdateResponse;
 import org.volunteer.server.web.PlainAssignmentHandler;
 
 /**

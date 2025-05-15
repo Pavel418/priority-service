@@ -1,4 +1,4 @@
-package org.volunteer.server.dto;
+package org.volunteer.server.model.dto;
 
 import org.volunteer.server.model.ServiceMeta;
  

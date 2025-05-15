@@ -1,4 +1,4 @@
-package org.volunteer.server.dto;
+package org.volunteer.server.model.dto;
 
 import java.util.List;
 import java.util.UUID;
