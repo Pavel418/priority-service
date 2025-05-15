@@ -1,5 +1,4 @@
 org\volunteer\server\ga\FitnessCalculator.class
-org\volunteer\server\model\Assignment.class
 org\volunteer\server\web\PlainAssignmentHandler.class
 org\volunteer\server\data\ServiceCatalog.class
 org\volunteer\server\service\GAService.class
@@ -14,4 +13,3 @@ org\volunteer\server\api\ClientController.class
 org\volunteer\server\dto\PreferenceUpdateRequest.class
 org\volunteer\server\dto\AssignmentUpdateResponse.class
 org\volunteer\server\service\AssignmentService.class
-org\volunteer\server\controller\ApiController.class

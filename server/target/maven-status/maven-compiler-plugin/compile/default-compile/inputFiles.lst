@@ -2,8 +2,6 @@ C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunt
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\config\AsyncConfig.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\config\PlainWebSocketConfig.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\config\WebSocketConfig.java
-C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\controller\ApiController.java
-C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\controller\WebSocketController.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\data\ServiceCatalog.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\dto\AssignmentDto.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\dto\AssignmentUpdateResponse.java
@@ -13,7 +11,6 @@ C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunt
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\ga\FitnessCalculator.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\ga\GeneticAlgorithm.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\ga\ProblemInstance.java
-C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\model\Assignment.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\model\ServiceMeta.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\model\VolunteerPreference.java
 C:\Users\Admin\Documents\GitHub\priority-service\server\src\main\java\org\volunteer\server\service\AssignmentService.java
