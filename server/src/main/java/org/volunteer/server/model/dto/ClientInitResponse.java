@@ -1,7 +1,6 @@
 package org.volunteer.server.model.dto;
 
 import java.util.List;
-import java.util.UUID;
 import org.volunteer.server.model.ServiceMeta;
 
 /**

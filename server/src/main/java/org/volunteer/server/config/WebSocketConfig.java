@@ -6,15 +6,14 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.volunteer.server.web.PlainAssignmentHandler;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSocket
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final PlainAssignmentHandler handler;
-
-    public WebSocketConfig(PlainAssignmentHandler handler) {
-        this.handler = handler;
-    }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry reg) {

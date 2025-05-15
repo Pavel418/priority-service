@@ -3,8 +3,6 @@ package org.volunteer.server.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.volunteer.server.data.ServiceCatalog;
 import org.volunteer.server.model.ServiceMeta;
@@ -12,6 +10,8 @@ import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.model.dto.AssignmentDto;
 import org.volunteer.server.model.dto.AssignmentUpdateResponse;
 import org.volunteer.server.web.PlainAssignmentHandler;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Coordinates volunteer assignment optimization using genetic algorithms.
@@ -21,30 +21,13 @@ import org.volunteer.server.web.PlainAssignmentHandler;
  * operations are asynchronous and non-blocking.
  */
 @Service
+@RequiredArgsConstructor
 public class AssignmentService {
 
     private final PreferenceService preferenceService;
     private final GAService gaService;
     private final ServiceCatalog catalog;
     private final PlainAssignmentHandler plainWs;
-
-    /**
-     * Constructs the service with required dependencies.
-     *
-     * @param prefSvc preference storage and retrieval service
-     * @param gaSvc genetic algorithm optimization engine
-     * @param catalog service metadata catalog
-     * @param plainWs WebSocket handler for broadcasting assignments
-     */
-    public AssignmentService(PreferenceService prefSvc,
-                             GAService gaSvc,
-                             ServiceCatalog catalog,
-                             PlainAssignmentHandler plainWs) {
-        this.preferenceService = prefSvc;
-        this.gaService = gaSvc;
-        this.catalog = catalog;
-        this.plainWs = plainWs;
-    }
 
     /**
      * Initiates optimization workflow when preferences change.

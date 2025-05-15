@@ -16,20 +16,14 @@ import org.volunteer.server.service.AssignmentService;
 import org.volunteer.server.service.PreferenceService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class ClientController {
     private final ServiceCatalog catalog;
     private final PreferenceService prefSvc;
     private final AssignmentService assignSvc;
-
-    public ClientController(ServiceCatalog catalog,
-                            PreferenceService prefSvc,
-                            AssignmentService assignSvc) {
-        this.catalog = catalog;
-        this.prefSvc = prefSvc;
-        this.assignSvc = assignSvc;
-    }
 
     // ---- matches GET /client/initialize expected by Swing app
     @GetMapping("/client/initialize")

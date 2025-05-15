@@ -6,6 +6,8 @@ import org.volunteer.server.ga.ProblemInstance;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +21,7 @@ import java.util.concurrent.Future;
  * Results are delivered via CompletableFuture for asynchronous consumption.
  */
 @Service
+@RequiredArgsConstructor
 public class GAService {
 
     private final ExecutorService executor;
@@ -28,15 +31,6 @@ public class GAService {
      * visibility of state changes. Null when no active task.
      */
     private volatile Future<?> currentTask;
-
-    /**
-     * Constructs the service with a dedicated GA executor.
-     *
-     * @param gaExecutor executor service configured for GA workloads
-     */
-    public GAService(ExecutorService gaExecutor) {
-        this.executor = gaExecutor;
-    }
 
     /**
      * Initiates a new GA optimization, canceling any in-progress run.
