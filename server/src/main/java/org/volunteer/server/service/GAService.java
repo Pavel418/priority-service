@@ -56,9 +56,6 @@ public class GAService {
             try {
                 int[] genes = GeneticAlgorithm.run(instance);
                 resultFuture.complete(genes);
-            } catch (InterruptedException e) {
-                // Task was cancelled: propagate cancellation
-                resultFuture.cancel(true);
             } catch (Exception ex) {
                 // Any other error
                 resultFuture.completeExceptionally(ex);
