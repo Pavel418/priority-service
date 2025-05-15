@@ -5,27 +5,27 @@ import java.util.Arrays;
 import java.util.Random;
 
 /** Candidate solution: genes[i] = index of service assigned to volunteer i. */
-final class Chromosome implements Comparable<Chromosome> {
+public final class Chromosome implements Comparable<Chromosome> {
     private static final Random RNG = new Random();
 
-    final int[] genes;        // mutable
-    double fitness;           // cached
+    public final int[] genes;        // mutable
+    public double fitness;           // cached
 
-    Chromosome(int volunteerCount, int serviceCount) {
+    public Chromosome(int volunteerCount, int serviceCount) {
         this.genes = RNG.ints(volunteerCount, 0, serviceCount).toArray();
     }
-    Chromosome(int[] copy) { this.genes = Arrays.copyOf(copy, copy.length); }
+    public Chromosome(int[] copy) { this.genes = Arrays.copyOf(copy, copy.length); }
 
-    void computeFitness(ProblemInstance inst) { this.fitness = FitnessCalculator.totalCost(genes, inst); }
+    public void computeFitness(ProblemInstance inst) { this.fitness = FitnessCalculator.totalCost(genes, inst); }
 
     /** Uniform mutation: re‑assign one random volunteer. */
-    void mutate(int serviceCount) {
+    public void mutate(int serviceCount) {
         int idx = RNG.nextInt(genes.length);
         genes[idx] = RNG.nextInt(serviceCount);
     }
 
     /** Single‑point crossover. */
-    static Chromosome crossover(Chromosome a, Chromosome b) {
+    public static Chromosome crossover(Chromosome a, Chromosome b) {
         int len = a.genes.length;
         int cut = 1 + RNG.nextInt(len - 2);
         int[] child = new int[len];

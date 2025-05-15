@@ -1,7 +1,6 @@
 package org.volunteer.server.service;
 
 import org.springframework.stereotype.Service;
-import org.volunteer.server.ga.GeneticAlgorithm;
 import org.volunteer.server.ga.ProblemInstance;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
@@ -22,9 +21,10 @@ import java.util.concurrent.Future;
  */
 @Service
 @RequiredArgsConstructor
-public class GAService {
+public class GeneticAlgorithmManager {
 
     private final ExecutorService executor;
+    private final GeneticAlgorithmService geneticAlgorithmService;
 
     /**
      * Tracks the active GA task's execution handle. Volatile ensures cross-thread
@@ -69,7 +69,7 @@ public class GAService {
         CompletableFuture<int[]> resultFuture = new CompletableFuture<>();
         currentTask = executor.submit(() -> {
             try {
-                int[] genes = GeneticAlgorithm.run(instance);
+                int[] genes = geneticAlgorithmService.run(instance);
                 resultFuture.complete(genes);
             } catch (Exception ex) {
                 resultFuture.completeExceptionally(ex);

@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class AssignmentService {
 
     private final PreferenceService preferenceService;
-    private final GAService gaService;
+    private final GeneticAlgorithmManager geneticAlgorithmManager;
     private final ServiceStorage catalog;
     private final PlainAssignmentHandler plainWs;
 
@@ -39,7 +39,7 @@ public class AssignmentService {
         List<VolunteerPreference> snapshot = preferenceService.orderedSnapshot();
         if (snapshot.size() < 3) return;  // Minimum viable population threshold
 
-        gaService.solveAsync(snapshot, catalog.findAll())
+        geneticAlgorithmManager.solveAsync(snapshot, catalog.findAll())
                 .thenAccept(genes -> handleResult(snapshot, genes));
     }
 
