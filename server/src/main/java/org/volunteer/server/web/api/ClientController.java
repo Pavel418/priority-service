@@ -1,4 +1,4 @@
-package org.volunteer.server.controller;
+package org.volunteer.server.web.api;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

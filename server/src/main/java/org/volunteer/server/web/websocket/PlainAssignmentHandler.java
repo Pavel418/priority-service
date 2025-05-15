@@ -1,4 +1,4 @@
-package org.volunteer.server.web;
+package org.volunteer.server.web.websocket;
 
 import java.io.IOException;
 import java.util.Set;

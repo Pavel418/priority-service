@@ -10,7 +10,7 @@ import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.model.dto.AssignmentDto;
 import org.volunteer.server.model.dto.AssignmentUpdateResponse;
-import org.volunteer.server.web.PlainAssignmentHandler;
+import org.volunteer.server.web.websocket.PlainAssignmentHandler;
 
 import lombok.RequiredArgsConstructor;
 

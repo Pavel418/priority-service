@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.volunteer.server.web.PlainAssignmentHandler;
+import org.volunteer.server.web.websocket.PlainAssignmentHandler;
 
 import lombok.RequiredArgsConstructor;
 
