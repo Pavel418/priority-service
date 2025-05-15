@@ -11,53 +11,73 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+/**
+ * Manages genetic algorithm optimization runs with concurrency control.
+ * <p>
+ * Executes GA tasks asynchronously using a dedicated executor service. Ensures
+ * only one optimization runs at a time by canceling previous tasks on new requests.
+ * Results are delivered via CompletableFuture for asynchronous consumption.
+ */
 @Service
 public class GAService {
 
     private final ExecutorService executor;
 
     /**
-     * Holds the Future for the currently running GA task (if any).
-     * Volatile so visibility is guaranteed across threads.
+     * Tracks the active GA task's execution handle. Volatile ensures cross-thread
+     * visibility of state changes. Null when no active task.
      */
     private volatile Future<?> currentTask;
 
+    /**
+     * Constructs the service with a dedicated GA executor.
+     *
+     * @param gaExecutor executor service configured for GA workloads
+     */
     public GAService(ExecutorService gaExecutor) {
         this.executor = gaExecutor;
     }
 
     /**
-     * Launch optimisation asynchronously.  If a previous run is
-     * still in-flight, cancel it immediately (via interruption).
+     * Initiates a new GA optimization, canceling any in-progress run.
+     * <p>
+     * Atomic operation due to method synchronization. Previous task receives
+     * thread interruption if still running. Optimization penalty weights and
+     * service indexing are configured internally.
+     *
+     * @param prefs current volunteer preferences snapshot
+     * @param services available services for assignment
+     * @return CompletableFuture that completes with optimized gene sequence or
+     *         fails with execution exception
      */
     public synchronized CompletableFuture<int[]> solveAsync(Collection<VolunteerPreference> prefs,
                                                             List<ServiceMeta> services) {
-        // 1) Cancel any in-progress GA
+        // Cancel previous optimization if active
         if (currentTask != null && !currentTask.isDone()) {
             currentTask.cancel(true);
         }
 
-        // 2) Build the problem instance
+        // Configure service lookup index
         Map<String, Integer> svcIndex = new HashMap<>();
         for (int i = 0; i < services.size(); i++) {
             svcIndex.put(services.get(i).id(), i);
         }
-        int preferencePenalty = 10;
+
+        // Build problem instance with fixed penalty weight
         ProblemInstance instance = new ProblemInstance(
                 List.copyOf(prefs),
                 services,
                 svcIndex,
-                preferencePenalty
+                10  // Fixed preference penalty weight
         );
 
-        // 3) Submit new GA task, capturing its Future
+        // Submit new optimization task
         CompletableFuture<int[]> resultFuture = new CompletableFuture<>();
         currentTask = executor.submit(() -> {
             try {
                 int[] genes = GeneticAlgorithm.run(instance);
                 resultFuture.complete(genes);
             } catch (Exception ex) {
-                // Any other error
                 resultFuture.completeExceptionally(ex);
             }
         });
