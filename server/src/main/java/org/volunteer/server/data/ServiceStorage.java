@@ -6,7 +6,7 @@ import org.volunteer.server.model.ServiceMeta;
 import java.util.List;
 
 @Component
-public class ServiceCatalog {
+public class ServiceStorage {
 
     private final List<ServiceMeta> services = List.of(
         new ServiceMeta("svc-reception", "Reception", "Front-desk welcome desk",        4),
@@ -21,5 +21,7 @@ public class ServiceCatalog {
         new ServiceMeta("svc-info",      "Info-desk", "General information point",      2)
     );
 
-    public List<ServiceMeta> all() { return services; }
+    public List<ServiceMeta> findAll() { 
+        return services; 
+    }
 } 

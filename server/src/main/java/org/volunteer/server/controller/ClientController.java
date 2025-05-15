@@ -1,19 +1,14 @@
 package org.volunteer.server.controller;
 
-import java.util.List;
-import java.util.UUID;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.volunteer.server.data.ServiceCatalog;
-import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.model.dto.ClientInitResponse;
 import org.volunteer.server.model.dto.PreferenceUpdateRequest;
-import org.volunteer.server.service.AssignmentService;
-import org.volunteer.server.service.PreferenceService;
+import org.volunteer.server.service.ClientService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,29 +16,19 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class ClientController {
-    private final ServiceCatalog catalog;
-    private final PreferenceService prefSvc;
-    private final AssignmentService assignSvc;
+
+    private final ClientService clientService;
 
     // ---- matches GET /client/initialize expected by Swing app
     @GetMapping("/client/initialize")
-    public ClientInitResponse init() {
-        return new ClientInitResponse(UUID.randomUUID().toString(), catalog.all());
+    public ClientInitResponse initializeClient() {
+        return clientService.initializeClient();
     }
 
     // ---- matches POST /preferences expected by Swing app - Updated signature and logic
     @PostMapping("/preferences")
-    public ResponseEntity<Void> upsert(@Valid @RequestBody PreferenceUpdateRequest req) {
-        // Use clientId directly as the volunteer ID (string)
-        VolunteerPreference vp = new VolunteerPreference(
-                req.clientId(),                // volunteerId  (string form)
-                req.volunteerName(),           // may be null / empty
-                List.copyOf(req.preferences()) // ranked list (≤5)
-        );
-    
-        prefSvc.save(vp);            // use the new save method directly
-        assignSvc.startOptimisation(); // kicks GA
-    
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> updatePreference(@Valid @RequestBody PreferenceUpdateRequest request) {
+        clientService.updatePreference(request);
+        return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 } 

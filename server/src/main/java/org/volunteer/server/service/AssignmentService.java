@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.volunteer.server.data.ServiceCatalog;
+import org.volunteer.server.data.ServiceStorage;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.model.dto.AssignmentDto;
@@ -26,7 +26,7 @@ public class AssignmentService {
 
     private final PreferenceService preferenceService;
     private final GAService gaService;
-    private final ServiceCatalog catalog;
+    private final ServiceStorage catalog;
     private final PlainAssignmentHandler plainWs;
 
     /**
@@ -39,7 +39,7 @@ public class AssignmentService {
         List<VolunteerPreference> snapshot = preferenceService.orderedSnapshot();
         if (snapshot.size() < 3) return;  // Minimum viable population threshold
 
-        gaService.solveAsync(snapshot, catalog.all())
+        gaService.solveAsync(snapshot, catalog.findAll())
                 .thenAccept(genes -> handleResult(snapshot, genes));
     }
 
@@ -50,7 +50,7 @@ public class AssignmentService {
      * @param genes optimized service indices from genetic algorithm
      */
     private void handleResult(List<VolunteerPreference> vpList, int[] genes) {
-        List<ServiceMeta> services = catalog.all();
+        List<ServiceMeta> services = catalog.findAll();
         List<AssignmentDto> out = new ArrayList<>(genes.length);
 
         for (int i = 0; i < genes.length; i++) {
