@@ -176,6 +176,13 @@ public class WebSocketHandler implements WebSocket.Listener {
         return CompletableFuture.completedStage(null);
     }
 
+    @Override
+    public void onOpen(WebSocket ws) {
+        // tell the WebSocket to fire onText for every incoming message without further requests
+        ws.request(Long.MAX_VALUE);
+        WebSocket.Listener.super.onOpen(ws);
+    }
+
     /**
      * Handles connection closure events.
      * <p>
