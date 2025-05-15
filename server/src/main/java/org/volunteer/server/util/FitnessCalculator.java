@@ -1,7 +1,8 @@
 // Path: src/main/java/org/volunteer/server/ga/FitnessCalculator.java
-package org.volunteer.server.ga;
+package org.volunteer.server.util;
 
 import org.volunteer.server.model.VolunteerPreference;
+import org.volunteer.server.model.ProblemInstance;
 import org.volunteer.server.model.ServiceMeta;
 
 import java.util.HashMap;

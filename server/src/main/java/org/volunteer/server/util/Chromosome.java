@@ -1,8 +1,10 @@
 // Path: src/main/java/org/volunteer/server/ga/Chromosome.java
-package org.volunteer.server.ga;
+package org.volunteer.server.util;
 
 import java.util.Arrays;
 import java.util.Random;
+
+import org.volunteer.server.model.ProblemInstance;
 
 /** Candidate solution: genes[i] = index of service assigned to volunteer i. */
 public final class Chromosome implements Comparable<Chromosome> {

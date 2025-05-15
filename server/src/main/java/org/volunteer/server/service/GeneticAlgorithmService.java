@@ -7,8 +7,8 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.volunteer.server.ga.Chromosome;
-import org.volunteer.server.ga.ProblemInstance;
+import org.volunteer.server.model.ProblemInstance;
+import org.volunteer.server.util.Chromosome;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,7 +57,7 @@ public final class GeneticAlgorithmService {
         }
 
         log.info("Finished genetic algorithm");
-        
+
         return best.genes;
     }
 

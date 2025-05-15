@@ -1,7 +1,7 @@
 package org.volunteer.server.service;
 
 import org.springframework.stereotype.Service;
-import org.volunteer.server.ga.ProblemInstance;
+import org.volunteer.server.model.ProblemInstance;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
 

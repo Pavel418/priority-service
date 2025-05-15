@@ -1,8 +1,5 @@
 // Path: src/main/java/org/volunteer/server/ga/ProblemInstance.java
-package org.volunteer.server.ga;
-
-import org.volunteer.server.model.ServiceMeta;
-import org.volunteer.server.model.VolunteerPreference;
+package org.volunteer.server.model;
 
 import java.util.List;
 import java.util.Map;
