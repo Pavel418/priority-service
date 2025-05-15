@@ -3,6 +3,7 @@ package org.volunteer.server.service;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.volunteer.server.data.PreferenceStorage;
 import org.volunteer.server.data.ServiceStorage;
 import org.volunteer.server.model.VolunteerPreference;
 import org.volunteer.server.model.dto.ClientInitResponse;
@@ -17,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClientService 
 {
     private final ServiceStorage serviceStorage;
-    private final PreferenceService preferenceService;
+    private final PreferenceStorage preferenceStorage;
     private final AssignmentService assignmentService;
 
     public ClientInitResponse initializeClient()
@@ -39,9 +40,9 @@ public class ClientService
         log.info("Update preference request received");
 
         VolunteerPreference preference = new VolunteerPreference(
-            request.clientId(), request.volunteerName(), request.preferences());
+            request.clientId(), request.preferences());
 
-        preferenceService.save(preference);
+        preferenceStorage.save(preference);
 
         log.info("Updated preference : {}", preference);
         

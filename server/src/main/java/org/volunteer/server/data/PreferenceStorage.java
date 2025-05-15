@@ -1,12 +1,11 @@
-package org.volunteer.server.service;
+package org.volunteer.server.data;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.volunteer.server.model.VolunteerPreference;
 
 /**
@@ -16,8 +15,8 @@ import org.volunteer.server.model.VolunteerPreference;
  * ensuring atomic operations and uniqueness per volunteer. All methods are
  * thread-safe for concurrent access.
  */
-@Service
-public class PreferenceService {
+@Component
+public class PreferenceStorage {
 
     private final ConcurrentMap<String, VolunteerPreference> store = new ConcurrentHashMap<>();
 

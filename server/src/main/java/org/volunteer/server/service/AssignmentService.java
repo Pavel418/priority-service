@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.volunteer.server.data.PreferenceStorage;
 import org.volunteer.server.data.ServiceStorage;
 import org.volunteer.server.model.ServiceMeta;
 import org.volunteer.server.model.VolunteerPreference;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AssignmentService {
 
-    private final PreferenceService preferenceService;
+    private final PreferenceStorage preferenceService;
     private final GeneticAlgorithmManager geneticAlgorithmManager;
     private final ServiceStorage catalog;
     private final PlainAssignmentHandler plainWs;
@@ -57,7 +58,6 @@ public class AssignmentService {
             VolunteerPreference vp = vpList.get(i);
             ServiceMeta svc = services.get(genes[i]);
             out.add(new AssignmentDto(vp.volunteerId(),
-                    vp.volunteerName(),
                     svc));
         }
 
