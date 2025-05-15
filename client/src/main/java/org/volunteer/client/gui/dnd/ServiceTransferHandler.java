@@ -92,8 +92,7 @@ public class ServiceTransferHandler extends TransferHandler {
         Component comp = support.getComponent();
         if (!(comp instanceof JPanel panel)) return false;
 
-        return Boolean.TRUE.equals(panel.getClientProperty("isSlot")) &&
-                panel.getComponents().length == 0;
+        return Boolean.TRUE.equals(panel.getClientProperty("isSlot"));
     }
 
     /**
