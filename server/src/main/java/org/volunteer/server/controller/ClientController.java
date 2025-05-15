@@ -1,5 +1,5 @@
 // --------------  api/ClientController.java
-package org.volunteer.server.api;
+package org.volunteer.server.controller;
 
 import java.util.List;
 import java.util.UUID;
