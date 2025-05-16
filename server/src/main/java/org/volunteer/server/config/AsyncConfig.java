@@ -11,8 +11,6 @@ public class AsyncConfig {
 
     @Bean(destroyMethod = "shutdownNow")
     public ExecutorService gaExecutor() {
-        /* Single background pool – only one optimisation at a time.
-           Switch to cached/fixed pool if you plan to run multiple   */
         return Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "ga-worker");
             t.setDaemon(true);
