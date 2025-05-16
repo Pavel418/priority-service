@@ -9,14 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Computes total dissatisfaction cost of a chromosome. */
+/**
+ * Calculates fitness scores for chromosomes based on preference satisfaction and capacity constraints.
+ * <p>
+ * Combines quadratic ranking penalties with heavy capacity violation penalties to guide the genetic algorithm
+ * toward valid, preference-optimized solutions. All calculations are stateless and thread-safe.
+ */
 final class FitnessCalculator {
 
+    /**
+     * Computes total dissatisfaction cost for a volunteer-service assignment sequence.
+     * <p>
+     * Cost components:
+     * <ul>
+     *   <li>Quadratic penalty for non-optimal preference rankings (rank² for matched preferences)</li>
+     *   <li>Fixed penalty multiplier for assignments outside volunteer preferences</li>
+     *   <li>Linear heavy penalties for service capacity overflows (1000× per overflow unit)</li>
+     * </ul>
+     *
+     * @param genes volunteer-to-service assignment indices
+     * @param inst problem context containing services, preferences, and penalty rules
+     * @return aggregated cost score where lower values indicate better solutions
+     */
     static double totalCost(int[] genes, ProblemInstance inst) {
         double cost = 0.0;
         Map<String,Integer> svcLoad = new HashMap<>();
         List<VolunteerPreference> vols = inst.volunteers();
 
+        // Calculate preference-based costs
         for (int i = 0; i < genes.length; i++) {
             int svcIdx = genes[i];
             ServiceMeta svc = inst.services().get(svcIdx);
@@ -28,22 +48,23 @@ final class FitnessCalculator {
 
             int rank = prefs.indexOf(assignedId);
             if (rank >= 0) {
-                cost += Math.pow(rank, 2);                         // (i‑1)²  rank is zero‑based
+                cost += Math.pow(rank, 2);  // Quadratic penalty for preference depth
             } else {
                 int Ns = prefs.size();
-                cost += inst.preferencePenalty() * Math.pow(Ns, 2);
+                cost += inst.preferencePenalty() * Math.pow(Ns, 2);  // Fixed penalty multiplier
             }
         }
 
-        /* Heavy penalty if any capacity is exceeded → drives repair */
+        // Apply capacity constraint penalties
         for (ServiceMeta s : inst.services()) {
             int load = svcLoad.getOrDefault(s.id(), 0);
             if (load > s.maxCapacity()) {
-                cost += 1000.0 * (load - s.maxCapacity());
+                cost += 1000.0 * (load - s.maxCapacity());  // Strong discouragement for overflows
             }
         }
         return cost;
     }
 
+    /** Prevents instantiation - this is a utility class. */
     private FitnessCalculator() {}
-} 
+}

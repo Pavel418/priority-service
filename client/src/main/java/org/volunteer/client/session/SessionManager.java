@@ -27,7 +27,6 @@ package org.volunteer.client.session;
  */
 public final class SessionManager {
     private static String clientId;
-    private static String userName;
     private static final Object lock = new Object();
 
     // Private constructor to prevent instantiation
@@ -48,18 +47,6 @@ public final class SessionManager {
     }
 
     /**
-     * Sets the authenticated user's name atomically.
-     *
-     * @param userName The user name to store (may be {@code null})
-     * @apiNote Should be cleared on session invalidation
-     */
-    public static void setUserName(final String userName) {
-        synchronized (lock) {
-            SessionManager.userName = userName;
-        }
-    }
-
-    /**
      * Retrieves the current client ID atomically.
      *
      * @return The stored client ID or {@code null} if not set
@@ -68,18 +55,6 @@ public final class SessionManager {
     public static String getClientId() {
         synchronized(lock) {
             return clientId;
-        }
-    }
-
-    /**
-     * Retrieves the authenticated user's name atomically.
-     *
-     * @return The stored username or {@code null} if not set
-     * @implNote Return value should be considered volatile
-     */
-    public static String getUserName() {
-        synchronized(lock) {
-            return userName;
         }
     }
 }
