@@ -1,4 +1,4 @@
-# Distributed assignment system
+# Distributed Assignment System
 
 This project aims to simplify and improve the process of assigning volunteers to
 specific roles during large-scale events such as community festivals or conferences.
@@ -160,4 +160,4 @@ Lastly, the core assignment algorithm could be enhanced by adopting a hybrid
 approach, combining the genetic algorithm with hill-climbing or tabu search techniques. This would improve convergence rates and result quality, especially under
 strict time constraints during high-load events.
 
-## Thanks for your attention! 
+# Thanks for your attention! 
